@@ -66,7 +66,7 @@ void setting_Form();
 void Info_Form();
 void tiktoktoe_Form();
 void display_board(char(*)[9],int);
-bool player_turn(char(*)[9],bool,int);
+bool player_turn(char(*)[9],bool,int,bool&);
 int gameover(char(*)[9],int);
 void notepad_Form();
 
@@ -126,7 +126,7 @@ void tiktoktoe_Form(){
         printf(" %s? number of cell to put your character on it%s\n",white,white);
         printf(" ? note that you are %sPlayer X%s\n\n",greenBlue,white);
         printf(" %s1.%s Level 1 (3*3)\n",greenBlue,white);
-        printf(" %s2.%s Level 2 (6*6).\n",greenBlue,white);
+        printf(" %s2.%s Level 2 (6*6)\n",greenBlue,white);
         printf(" %s3.%s Level 3 (9*9)\n",greenBlue,white);
         level = getint_Clear();
         while(level<1 || level>3){
@@ -137,14 +137,15 @@ void tiktoktoe_Form(){
         ////////
         for(int i=0;i<9*9;board[i/9][i%9]=' ',i++);
         turn = Xplayer;
-        bool startPlay=true;
+        bool Exit=false;
         while(true){
-            if(gameover(board,level)!=0)   break;
-            startPlay=false;
+            if(gameover(board,level)!=0 || Exit)   break;
             display_board(board,level);
-            turn = player_turn(board,turn,level);
+            turn = player_turn(board,turn,level,Exit);
         }
-        if(turn==Oplayer){
+        if(Exit){
+            cout<<"\n\nOh :( sad to see you leaving";
+        }else if(turn==Oplayer){
             cout<<"\n\nCongratulations!YOU has won the game with 'X'";
         }
         else if(turn==Xplayer){
@@ -173,53 +174,57 @@ void display_board(char board[9][9],int level){
     printf("\n%s##############################################%s\n\n",greenBlue,bg_black);
     printf(" \t%s! TICK -- TAC -- TOE -- GAME %s\n",white,white);
     printf("%s \tPLAYER [X]\t SYSTEM [O]\n\n %s",greenBlue,white);
-    /*border*/
+    /*first row border*/
     cout<<"\t\t";
-    for(int i=0 ; i<level ; i++)
+    for(int i=0 ; i<level-1 ; i++)
         printf("%02d   |",i);
-    cout << '\n';
+    printf("%02d\n",level-1);
     /*end border*/
     for(int i=0 ; i<level-1 ; i++){
-        /*indexes*/
+        /*each cell indexes*/
         cout<<"\t\t  ";
-        for(int j=0 ; j<level ; j++)
+        for(int j=0 ; j<level-1 ; j++)
             cout<<board[i][j]<<"  |  ";
         cout << '\n';
         /*end indexes*/
-        /*middle border*/
+        /*lower borders*/
         cout<<"\t\t_____";
         for(int j=0 ; j<level-1 ; j++)
             cout << "|_____";
         cout << '\n';
         /*end middle border*/
-        /*border*/
+        /*upper borders*/
         cout<<"\t\t";
-        for(int j=0 ; j<level ; j++)
+        for(int j=0 ; j<level-1 ; j++)
             printf("%02d   |",(i+1)*level+j);
-        cout << '\n';
+        printf("%02d\n",(i+1)*level+level-1);
         /*end border*/
     }
-    /*indexes*/
+    /*last row cells indexes*/
     cout<<"\t\t  ";
-    for(int j=0 ; j<level ; j++)
+    for(int j=0 ; j<level-1 ; j++)
         cout<<board[level-1][j]<<"  |  ";
-    cout << '\n';
+    cout<<board[level-1][j]"<< '\n';
     /*end indexes*/
-    /*border*/
+    /*last row lower border*/
     cout<<"\t\t";
-    for(int i=0 ; i<level ; i++)
+    for(int i=0 ; i<level-1 ; i++)
         printf("     |");
     cout << '\n';
     /*end border*/
 }
 
-bool player_turn(char board[9][9],bool turn, int level){
+bool player_turn(char board[9][9],bool turn, int level,bool& Exit){
     int choice,row,column;
     if(turn==Xplayer){
-        printf(" %s\n\tPlayer [X] turn :  %s",greenBlue,white);
+        printf(" %s\n\tIf you wanna end up the game enter -1\n\t Player [X] turn :  %s",greenBlue,white);
         choice = getint_Clear();
-        while(choice<0 || choice>=level*level){
-            cout<<"\nInvalid Move\n";
+        if (choice==-1){
+            Exit=true;
+            return turn;
+        }
+        while(choice<-1 || choice>=level*level){
+            cout<<"\nIf you wanna end up the game enter -1\nInvalid Move\n";
             choice = getint_Clear();
         }
     }else{
@@ -238,7 +243,7 @@ bool player_turn(char board[9][9],bool turn, int level){
         turn = Xplayer;
     }else {
         cout<<"Box already filled!n Please choose another!!\n\n";
-        turn = player_turn(board,turn,level);
+        turn = player_turn(board,turn,level,Exit);
     }
     return turn;
 }
