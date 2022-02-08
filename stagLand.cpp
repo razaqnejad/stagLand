@@ -2,6 +2,7 @@
 #include <limits>
 #include <math.h>
 #include <windows.h>
+#include <fstream>
 #include <time.h>
 
 //////////////// colors
@@ -47,7 +48,11 @@ struct City{
             {"Kashan",51,33},
             {"Karaj",51,35}
         };
-
+struct Account{
+    bool login = false;
+    string username="\0";
+    char password[8]={' ',' ',' ',' ',' ',' ',' ',' '};
+}account;
 //////////////// functions
 void logo();
 void startPage();
@@ -65,10 +70,14 @@ double rad2deg(double);
 void setting_Form();
 void Info_Form();
 void tiktoktoe_Form();
-void display_board(char(*)[9],int);
-bool player_turn(char(*)[9],bool,int,bool&);
-int gameover(char(*)[9],int);
+void display_board(char(*)[5],int);
+bool player_turn(char(*)[5],bool,int,bool&);
+int gameover(char(*)[5],int);
 void notepad_Form();
+void login();
+void signup();
+bool account_valid();
+void set_account_data();
 
 int main(){
     char input='\0';
@@ -91,7 +100,7 @@ int main(){
                 setting_Form();
                 break;
             case 'E':
-                //notepad_Form();
+                notepad_Form();
                 break;
             case 'F':
                 tiktoktoe_Form();
@@ -112,30 +121,191 @@ int main(){
     }
 }
 
-void tiktoktoe_Form(){
-    int level;
+void login(){
+    while(true){
+        system("cls");
+        printf("\n%s##############################################%s\n\n",pink,bg_black);
+        printf(" %s! use this part to login %s\n",white,white);
+        printf(" %s  enter username and password in seperated lines\n",yellow,white);
+        printf(" %s  example: \n   razaqnejad\n   12345678 %s\n\n",yellow,white);
+        cin >> account.username;
+        cin >> account.password;
+        if(!account_valid()){
+            int option2;
+            printf(" %s? the username is not exist%s\n",white,white);
+            printf(" %s  1. %s try again\n",yellow,white);
+            printf(" %s  2. %s signup\n",yellow,white);
+            printf(" %s  example: 1 %s\n\n",yellow,white);
+            option2 = getint_Clear();
+            while(option2<1 || option2>2){
+                cout << "\nSorry?! try again\n";
+                option2 = getint_Clear();
+            }
+            if(option2==1){
+                continue;
+            }else{
+                signup();
+                return;
+            }
+        }else{
+            system("cls");
+            printf("\n%s##############################################%s\n\n",bg_brown,bg_black);
+            printf(" Welcome dear %s%s %s\n",bg_brown,account.username.c_str(),bg_black);
+            Sleep(2000);
+            system("cls");
+            return;
+        }
+        account.login=true;
+    }
+}
+void signup(){
+    while(true){
+        system("cls");
+        printf("\n%s##############################################%s\n\n",pink,bg_black);
+        printf(" %s! you are making an account%s\n",white,white);
+        printf(" %s?  enter username and password in seperated lines\n",white,white);
+        printf(" %s?  notic username could be anything\n     but without witespaces\n",red,white);
+        printf(" %s?  and password have to be exact 8 characters\n",red,white);
+        printf(" %s  example: \n   stagland\n   12345678 %s\n\n",yellow,white);
+        cin >> account.username;
+        while(account.username=="\0"){
+            cout << "\nCome on -_- dont be funny\n";
+            cin >> account.username;
+        }
+        cin >> account.password;
+        do{
+            bool flag=true;
+            for(int i=0 ; i<8 ; i++){
+                if(account.password[i]==' '){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag==true)
+                break;
+            cout << "\nExact EIGHT charcters..\n";
+            cin >> account.password;
+        }while(true);
+        system("cls");
+        printf("\n%s##############################################%s\n\n",bg_brown,bg_black);
+        printf(" Welcome dear%s %s %s\n",bg_brown,account.username.c_str(),bg_black);
+        Sleep(2000);
+        break;
+    }
+    set_account_data();
+    account.login=true;
+}
+void set_account_data(){
+    /* make accounts file */
+    fstream  file;
+    file.open(".\\stagland_data\\accounts.txt",ios::app);
+    if(!file){
+        /* make directory of data */
+        system("rmdir /S /Q stagland_data");
+        system("mkdir stagland_data");
+        file.open(".\\stagland_data\\accounts.txt",ios::app);
+    }
+    file << account.username << '\n';
+    file << account.password << '\n';
+    file.close();
+}
+bool account_valid(){
+    /* make accounts file */
+    fstream  file;
+    file.open(".\\stagland_data\\accounts.txt",ios::in);
+    if(!file){
+        file.close();
+        return false;
+    }
+    string username;
+    char pass[8];
+    while(!file.eof()){
+        getline(file,username);
+        file >> pass;
+        cout << username <<'\n';
+        cout << pass << '\n';
+        if (username==account.username){
+            bool flag=true;
+            for(int i=0 ; i<8 ; i++){
+                if(pass[i]!=account.password[i]){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag==true){
+                file.close();
+                return true;
+            }
+        }
+    }
+    file.close();
+    return false;
+}
+void notepad_Form(){
+    int option;
     char input;
-    char board[9][9];
-    for(int i=0;i<9*9;board[i/9][i%9]=' ',i++);
     bool turn = Xplayer;
     do{
         system("cls");
-        printf("\n%s##############################################%s\n\n",greenBlue,bg_black);
+        printf("\n%s##############################################%s\n\n",pink,bg_black);
+        printf(" %s! use this part as a notepad %s\n",white,white);
+        if(account.login){
+            printf(" %s? choose your option%s\n",white,white);
+            printf(" %s  1. %s add note\n",yellow,white);
+            printf(" %s  2. %s load note\n",yellow,white);
+            printf(" %s  3. %s delete note\n",yellow,white);
+            printf(" %s  example: 1 %s\n\n",yellow,white);
+            option = getint_Clear();
+            while(option<1 || option>3){
+                cout << "\nSorry?! try again\n";
+                option = getint_Clear();
+            }
+        }else{
+            printf(" %s? you have to login to use this part%s\n",white,white);
+            login();
+            continue;
+        }
+        ////////
+        //////
+        printf("\n %sC.%s Try again..\n",brightGreen,white);
+        printf(" %sZ.%s Back to menu..\n",brightGreen,white);
+        printf(" %sQ.%s Exit..\n",brightGreen,white);
+        input = getchar_Clear();
+        while(input!='C' && input!='Z' && input!='Q'){
+            cout << "\nSorry?! try again\n";
+            input = getchar_Clear();
+        }
+        if (input=='Q')
+            exit(0);
+        if (input=='Z')
+            return;
+    }while(input=='C');
+}
+
+void tiktoktoe_Form(){
+    int level;
+    char input;
+    char board[5][5];
+    for(int i=0;i<5*5;board[i/5][i%5]=' ',i++);
+    bool turn = Xplayer;
+    do{
+        system("cls");
+        printf("\n%s##############################################%s\n\n",brightGreen,bg_black);
         printf(" %s! TICK -- TAC -- TOE -- GAME %s\n",white,white);
         printf(" %s? choose the game level, then you have to write %s\n",white,white);
         printf(" %s? number of cell to put your character on it%s\n",white,white);
-        printf(" ? note that you are %sPlayer X%s\n\n",greenBlue,white);
-        printf(" %s1.%s Level 1 (3*3)\n",greenBlue,white);
-        printf(" %s2.%s Level 2 (6*6)\n",greenBlue,white);
-        printf(" %s3.%s Level 3 (9*9)\n",greenBlue,white);
+        printf(" ? note that you are %sPlayer X%s\n\n",brightGreen,white);
+        printf(" %s1.%s Level 1 (3*3)\n",brightGreen,white);
+        printf(" %s2.%s Level 2 (4*4)\n",brightGreen,white);
+        printf(" %s3.%s Level 3 (5*5)\n",brightGreen,white);
         level = getint_Clear();
         while(level<1 || level>3){
             cout << "\nSorry?! try again\n";
             level = getint_Clear();
         }
-        level*=3;
+        level+=2;
         ////////
-        for(int i=0;i<9*9;board[i/9][i%9]=' ',i++);
+        for(int i=0;i<5*5;board[i/5][i%5]=' ',i++);
         turn = Xplayer;
         bool Exit=false;
         while(true){
@@ -154,9 +324,9 @@ void tiktoktoe_Form(){
         else
             cout<<"\n\nGAME DRAW!!!\n\n";
         //////
-        printf("\n %sC.%s Try again..\n",greenBlue,white);
-        printf(" %sZ.%s Back to menu..\n",greenBlue,white);
-        printf(" %sQ.%s Exit..\n",greenBlue,white);
+        printf("\n %sC.%s Try again..\n",brightGreen,white);
+        printf(" %sZ.%s Back to menu..\n",brightGreen,white);
+        printf(" %sQ.%s Exit..\n",brightGreen,white);
         input = getchar_Clear();
         while(input!='C' && input!='Z' && input!='Q'){
             cout << "\nSorry?! try again\n";
@@ -169,11 +339,11 @@ void tiktoktoe_Form(){
     }while(input=='C');
 }
 
-void display_board(char board[9][9],int level){
+void display_board(char board[5][5],int level){
     system("cls");
-    printf("\n%s##############################################%s\n\n",greenBlue,bg_black);
+    printf("\n%s##############################################%s\n\n",brightGreen,bg_black);
     printf(" \t%s! TICK -- TAC -- TOE -- GAME %s\n",white,white);
-    printf("%s \tPLAYER [X]\t SYSTEM [O]\n\n %s",greenBlue,white);
+    printf("%s \tPLAYER [X]\t SYSTEM [O]\n\n %s",brightGreen,white);
     /*first row border*/
     cout<<"\t\t";
     for(int i=0 ; i<level-1 ; i++)
@@ -204,7 +374,7 @@ void display_board(char board[9][9],int level){
     cout<<"\t\t  ";
     for(int j=0 ; j<level-1 ; j++)
         cout<<board[level-1][j]<<"  |  ";
-    cout<<board[level-1][j]"<< '\n';
+    cout<<board[level-1][level-1]<< '\n';
     /*end indexes*/
     /*last row lower border*/
     cout<<"\t\t";
@@ -214,10 +384,10 @@ void display_board(char board[9][9],int level){
     /*end border*/
 }
 
-bool player_turn(char board[9][9],bool turn, int level,bool& Exit){
+bool player_turn(char board[5][5],bool turn, int level,bool& Exit){
     int choice,row,column;
     if(turn==Xplayer){
-        printf(" %s\n\tIf you wanna end up the game enter -1\n\t Player [X] turn :  %s",greenBlue,white);
+        printf(" %s\n\tIf you wanna end up the game enter -1\n\t Player [X] turn :  %s",brightGreen,white);
         choice = getint_Clear();
         if (choice==-1){
             Exit=true;
@@ -228,7 +398,7 @@ bool player_turn(char board[9][9],bool turn, int level,bool& Exit){
             choice = getint_Clear();
         }
     }else{
-        printf(" %s\n\tSystem [O] turn :  %s",greenBlue,white);
+        printf(" %s\n\tSystem [O] turn :  %s",brightGreen,white);
         choice= rand()%(level*level);
     }
 
@@ -248,7 +418,7 @@ bool player_turn(char board[9][9],bool turn, int level,bool& Exit){
     return turn;
 }
 
-int gameover(char board[9][9], int level){
+int gameover(char board[5][5], int level){
     for(int i=0; i<level-2; i++)
         for(int j=0; j<level; j++)
             if(board[j][i]!=' ' && board[i][j]!=' ' &&
