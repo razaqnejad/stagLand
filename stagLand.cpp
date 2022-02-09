@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <fstream>
 #include <time.h>
+//#include <string>
 
 //////////////// colors
 #define bg_brown "\u001b[48;5;94m"
@@ -62,6 +63,7 @@ void calculator(float,float,char);
 char getchar_Clear(char='\n');
 int getint_Clear(char='\n');
 float getfloat_Clear(char='\n');
+void cin_Clear();
 void BMI_form();
 void citiesDistance_Form();
 double distanceEarth(City p1, City p2);
@@ -128,6 +130,7 @@ void login(){
         printf(" %s! use this part to login %s\n",white,white);
         printf(" %s  enter username and password in seperated lines\n",yellow,white);
         printf(" %s  example: \n   razaqnejad\n   12345678 %s\n\n",yellow,white);
+        //cin_Clear();
         cin >> account.username;
         cin >> account.password;
         if(!account_valid()){
@@ -153,9 +156,9 @@ void login(){
             printf(" Welcome dear %s%s %s\n",bg_brown,account.username.c_str(),bg_black);
             Sleep(2000);
             system("cls");
+            account.login=true;
             return;
         }
-        account.login=true;
     }
 }
 void signup(){
@@ -164,7 +167,7 @@ void signup(){
         printf("\n%s##############################################%s\n\n",pink,bg_black);
         printf(" %s! you are making an account%s\n",white,white);
         printf(" %s?  enter username and password in seperated lines\n",white,white);
-        printf(" %s?  notic username could be anything\n     but without witespaces\n",red,white);
+        printf(" %s?  notic username could be anything up to 20\n     characters but without witespaces\n",red,white);
         printf(" %s?  and password have to be exact 8 characters\n",red,white);
         printf(" %s  example: \n   stagland\n   12345678 %s\n\n",yellow,white);
         cin >> account.username;
@@ -204,6 +207,7 @@ void set_account_data(){
         system("rmdir /S /Q stagland_data");
         system("mkdir stagland_data");
         file.open(".\\stagland_data\\accounts.txt",ios::app);
+        file << '\n';
     }
     file << account.username << '\n';
     file << account.password << '\n';
@@ -217,13 +221,23 @@ bool account_valid(){
         file.close();
         return false;
     }
-    string username;
+    char username[20]="\0";
     char pass[8];
+    //file.getline(username,100);
+    file.flush();
     while(!file.eof()){
-        getline(file,username);
         file >> pass;
+        file >> username;
+        /* for debug //
+        cout << "account.password" <<": ";
+        cout << account.password <<'\t';
+        cout << "pass" << ": ";
+        cout << pass <<'\n';
+        cout << "account.username" <<": ";
+        cout << account.username << '\t';
+        cout << "username" <<": ";
         cout << username <<'\n';
-        cout << pass << '\n';
+        // end of debug */
         if (username==account.username){
             bool flag=true;
             for(int i=0 ; i<8 ; i++){
@@ -758,4 +772,8 @@ float getfloat_Clear(char ender){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),ender);
     return n;
+}
+void cin_Clear(){
+    cin.clear();
+    cin.ignore();
 }
