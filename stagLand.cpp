@@ -923,7 +923,7 @@ void logo(){
     printf("\n");
 }
 void startPage(){
-    for(int i=0 ; i<2 ; i++){
+    for(int i=0 ; i<10 ; i++){
         if(i%3==0){
             system("cls");
             printf("\n##############################################\n");
