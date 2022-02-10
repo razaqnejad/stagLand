@@ -11,15 +11,15 @@
 #define bg_blue "\u001b[48;5;17m"
 #define bg_red "\u001b[48;5;52m"
 #define bg_black "\u001b[0m"
-#define red "\u001b[38;5;1m"
-#define niceBlue "\u001b[38;5;51m"
-#define pink "\u001b[38;5;206m"
-#define yellow "\u001b[38;5;228m"
-#define green "\u001b[38;5;70m"
-#define purple "\u001b[38;5;99m"
-#define greenBlue "\u001b[38;5;6m"
-#define brightGreen "\u001b[38;5;83m"
-#define orange "\u001b[38;5;208m"
+#define red "\u001b[38;5;1m"            //calculator
+#define niceBlue "\u001b[38;5;51m"      //BMI
+#define pink "\u001b[38;5;206m"         //Citis
+#define yellow "\u001b[38;5;228m"       //setting
+#define green "\u001b[38;5;70m"         //notepad
+#define purple "\u001b[38;5;99m"        //exit
+#define greenBlue "\u001b[38;5;6m"      //info
+#define brightGreen "\u001b[38;5;83m"   //tiktaktoe
+#define orange "\u001b[38;5;208m"       //
 #define white "\u001b[38;5;255m"
 
 #define earthRadiusKm 6371.0
@@ -63,7 +63,6 @@ void calculator(float,float,char);
 char getchar_Clear(char='\n');
 int getint_Clear(char='\n');
 float getfloat_Clear(char='\n');
-void cin_Clear();
 void BMI_form();
 void citiesDistance_Form();
 double distanceEarth(City p1, City p2);
@@ -80,6 +79,10 @@ void login();
 void signup();
 bool account_valid();
 void set_account_data();
+void set_note_data(string);
+void load_note();
+void delete_note();
+void delete_stagland_data();
 
 int main(){
     char input='\0';
@@ -122,15 +125,178 @@ int main(){
         }
     }
 }
-
+void delete_stagland_data(){
+    int a;
+    char input;
+    system("cls");
+    printf("\n%s##############################################%s\n\n",yellow,bg_black);
+    printf(" %s! you are deleting all the datas %s\n",white,white);
+    printf(" %s? are you sure? enter y for yes or n for no %s\n",white,white);
+    printf(" %s  example: y %s\n\n",green,white);
+    input = getchar_Clear();
+    while(input!='Y' && input!='N'){
+        cout << "\nSorry?! try again\n";
+        input = getchar_Clear();
+    }
+    if(input=='Y'){
+    /* delete dir */
+        system("rmdir /s /Q stagland_data");
+        printf("\n :( your data %sdeleted%s\n",green,white);
+        account.login=false;
+    }
+    printf("\n %sZ.%s Back to menu..\n",green,white);
+    printf(" %sQ.%s Exit..\n",green,white);
+    input = getchar_Clear();
+    while(input!='Z' && input!='Q'){
+        cout << "\nSorry?! try again\n";
+        input = getchar_Clear();
+    }
+    if (input=='Q')
+        exit(0);
+    if (input=='Z')
+        return;
+}
+void delete_note(){
+    int a;
+    char input;
+    system("cls");
+    printf("\n%s##############################################%s\n\n",green,bg_black);
+    printf(" %s! you are deleting your note %s\n",white,white);
+    printf(" %s? are you sure? enter y for yes or n for no %s\n",white,white);
+    printf(" %s  example: y %s\n\n",green,white);
+    input = getchar_Clear();
+    while(input!='Y' && input!='N'){
+        cout << "\nSorry?! try again\n";
+        input = getchar_Clear();
+    }
+    if(input=='Y'){
+    /* delete dir */
+        string deleteNote="del /f stagland_data\\notes\\"+account.username+".txt";
+        system(deleteNote.c_str());
+        printf("\n :( your note %sdeleted%s\n",green,white);
+    }
+    printf("\n %sZ.%s Back to menu..\n",green,white);
+    printf(" %sQ.%s Exit..\n",green,white);
+    input = getchar_Clear();
+    while(input!='Z' && input!='Q'){
+        cout << "\nSorry?! try again\n";
+        input = getchar_Clear();
+    }
+    if (input=='Q')
+        exit(0);
+    if (input=='Z')
+        return;
+}
+void load_note(){
+    int a;
+    char input;
+    system("cls");
+    printf("\n%s##############################################%s\n\n",green,bg_black);
+    printf(" %s! here is your note dear %s%s%s\n",white,green,account.username.c_str(),white);
+    /* make accounts file */
+    fstream  file;
+    file.open(".\\stagland_data\\notes\\"+account.username+".txt",ios::in);
+    if(!file){
+        printf(" %ssorry but you dont have any note%s\n",green,white);
+        return;
+    }
+    char data[100];
+    //file.getline(username,100);
+    file.flush();
+    while(!file.eof()){
+        file.getline(data,100);
+        cout << '\t' << data << '\n';
+    }
+    file.close();
+    ///
+    printf(" %sZ.%s Back to menu..\n",green,white);
+    printf(" %sQ.%s Exit..\n",green,white);
+    input = getchar_Clear();
+    while(input!='C' && input!='Z' && input!='Q'){
+        cout << "\nSorry?! try again\n";
+        input = getchar_Clear();
+    }
+    if (input=='Q')
+        exit(0);
+    if (input=='Z')
+        return;
+}
+void add_note(){
+    string data;
+    char input;
+    bool flagAnotherNote=false;
+    while(true){
+        system("cls");
+        printf("\n%s##############################################%s\n\n",green,bg_black);
+        printf(" %s! add a note to your notes %s\n",white,white);
+        printf(" %s  write anything you want in a single line\n",green,white);
+        printf(" %s  example: Hello my new note %s\n\n",green,white);
+        //
+        getline(cin,data);
+        do{
+            printf("\n %sS.%s Save and try again..\n",green,white);
+            printf(" %sM.%s Save and back to menu..\n",green,white);
+            printf(" %sE.%s Save and exit\n",green,white);
+            printf(" %sC.%s Just try again..\n",green,white);
+            printf(" %sZ.%s Just back to menu..\n",green,white);
+            printf(" %sQ.%s Just exit..\n",green,white);
+            input = getchar_Clear();
+            while(input!='C' && input!='Z' && input!='Q' && input!='S' && input!='M' && input!='E'){
+                cout << "\nSorry?! try again\n";
+                input = getchar_Clear();
+            }
+            switch(input){
+                case 'S':
+                    set_note_data(data);
+                    flagAnotherNote=true;
+                    break;
+                case 'M':
+                    set_note_data(data);
+                    return;
+                    break;
+                case 'E':
+                    set_note_data(data);
+                    exit(0);
+                    break;
+                case 'Q':
+                    exit(0);
+                    break;
+                case 'Z':
+                    return;
+                    break;
+                case 'C':
+                    break;
+            }
+        }while(input=='C');
+        if (flagAnotherNote==true)
+            continue;
+    }
+    
+}
+void set_note_data(string data){
+    fstream  file;
+    file.open(".\\stagland_data\\notes\\"+account.username+".txt",ios::app);
+    if(!file){
+        /* make directory of data */
+        system("rmdir /S /Q notes");
+        system("rmdir -r stagland_data\\notes");
+        system("mkdir stagland_data\\notes");
+        system("cd ..");
+        file.open(".\\stagland_data\\notes\\"+account.username+".txt",ios::out);
+        file.close();
+        file.open(".\\stagland_data\\notes\\"+account.username+".txt",ios::app);
+    }
+    file << data << '\n';
+    file.close();
+}
 void login(){
     while(true){
         system("cls");
-        printf("\n%s##############################################%s\n\n",pink,bg_black);
+        printf("\n%s##############################################%s\n\n",yellow,bg_black);
         printf(" %s! use this part to login %s\n",white,white);
         printf(" %s  enter username and password in seperated lines\n",yellow,white);
         printf(" %s  example: \n   razaqnejad\n   12345678 %s\n\n",yellow,white);
-        //cin_Clear();
+        //
         cin >> account.username;
         cin >> account.password;
         if(!account_valid()){
@@ -164,7 +330,7 @@ void login(){
 void signup(){
     while(true){
         system("cls");
-        printf("\n%s##############################################%s\n\n",pink,bg_black);
+        printf("\n%s##############################################%s\n\n",yellow,bg_black);
         printf(" %s! you are making an account%s\n",white,white);
         printf(" %s?  enter username and password in seperated lines\n",white,white);
         printf(" %s?  notic username could be anything up to 20\n     characters but without witespaces\n",red,white);
@@ -207,7 +373,6 @@ void set_account_data(){
         system("rmdir /S /Q stagland_data");
         system("mkdir stagland_data");
         file.open(".\\stagland_data\\accounts.txt",ios::app);
-        file << '\n';
     }
     file << account.username << '\n';
     file << account.password << '\n';
@@ -258,32 +423,53 @@ bool account_valid(){
 void notepad_Form(){
     int option;
     char input;
-    bool turn = Xplayer;
-    do{
-        system("cls");
-        printf("\n%s##############################################%s\n\n",pink,bg_black);
-        printf(" %s! use this part as a notepad %s\n",white,white);
-        if(account.login){
-            printf(" %s? choose your option%s\n",white,white);
-            printf(" %s  1. %s add note\n",yellow,white);
-            printf(" %s  2. %s load note\n",yellow,white);
-            printf(" %s  3. %s delete note\n",yellow,white);
-            printf(" %s  example: 1 %s\n\n",yellow,white);
+    bool flag = false;
+    system("cls");
+    printf("\n%s##############################################%s\n\n",green,bg_black);
+    printf(" %s! use this part as a notepad %s\n",white,white);
+    if(account.login){
+        printf(" %s? choose your option%s\n",white,white);
+        printf(" %s  1. %s add note\n",green,white);
+        printf(" %s  2. %s load note\n",green,white);
+        printf(" %s  3. %s delete note\n",green,white);
+        printf(" %s  4. %s none of them\n",green,white);
+        printf(" %s  example: 1 %s\n\n",green,white);
+        option = getint_Clear();
+        while(option<1 || option>4){
+            cout << "\nSorry?! try again\n";
             option = getint_Clear();
-            while(option<1 || option>3){
-                cout << "\nSorry?! try again\n";
-                option = getint_Clear();
-            }
-        }else{
-            printf(" %s? you have to login to use this part%s\n",white,white);
-            login();
-            continue;
         }
+        switch (option)
+        {
+        case 1:
+            add_note();
+            break;
+        case 2:
+            load_note();
+            break;
+        case 3:
+            delete_note();
+            break;
+        case 4:
+            flag=true;
+            break;
+        default:
+            break;
+        }
+    }else{
+        printf(" %s? you have to login to use this part%s\n",white,white);
+        login();
+        return;
+    }
+    if(flag){
+        system("cls");
+        printf("\n%s##############################################%s\n\n",green,bg_black);
+        printf(" %s! use this part as a notepad %s\n",white,white);
         ////////
         //////
-        printf("\n %sC.%s Try again..\n",brightGreen,white);
-        printf(" %sZ.%s Back to menu..\n",brightGreen,white);
-        printf(" %sQ.%s Exit..\n",brightGreen,white);
+        printf("\n %sC.%s Try again..\n",green,white);
+        printf(" %sZ.%s Back to menu..\n",green,white);
+        printf(" %sQ.%s Exit..\n",green,white);
         input = getchar_Clear();
         while(input!='C' && input!='Z' && input!='Q'){
             cout << "\nSorry?! try again\n";
@@ -293,7 +479,7 @@ void notepad_Form(){
             exit(0);
         if (input=='Z')
             return;
-    }while(input=='C');
+    }
 }
 
 void tiktoktoe_Form(){
@@ -481,23 +667,43 @@ void Info_Form(){
 }
 
 void setting_Form(){
-    int a;
     char input;
-    system("cls");
-    printf("\n%s##############################################%s\n\n",yellow,bg_black);
-    printf(" %s! change theme %s\n",white,white);
-    printf(" %s? enter the number%s\n",white,white);
-    printf(" %s? be careful about the spaces and enters%s\n",white,white);
-    printf(" %s  1. %s black theme\n",yellow,white);
-    printf(" %s  2. %s blue theme\n",yellow,white);
-    printf(" %s  3. %s red theme\n",yellow,white);
-    printf(" %s  example: 1 %s\n\n",yellow,white);
+    int num;
     do{
+        system("cls");
+        printf("\n%s##############################################%s\n\n",yellow,bg_black);
+        printf(" %s! welcome to settings %s\n",white,white);
+        printf(" %s? enter the number%s\n",white,white);
+        printf(" %s  1. %s login\n",yellow,white);
+        printf(" %s  2. %s logout\n",yellow,white);
+        printf(" %s  3. %s signup\n",yellow,white);
+        printf(" %s  4. %s delete all datas\n",yellow,white);
+        printf(" %s  example: 1 %s\n\n",yellow,white);
+        
         printf(" %s  your turn: %s\n\n",white,white);
-        a= getint_Clear();
-        if(a==1) printf("%s",bg_black);
-        else if(a==2) printf("%s",bg_blue);
-        else if(a==3) printf("%s",bg_red);
+        num= getint_Clear();
+        while(num<1 || num>4){
+            cout << "\nSorry?! try again\n";
+            num = getint_Clear();
+        }
+        switch (num){
+        case 1:
+            login();
+            break;
+        case 2:
+            account.login=false;
+            cout << "\nDone..\n";
+            break;
+        case 3:
+            signup();
+            break;
+        case 4:
+            delete_stagland_data();
+            cout << "\nDone..\n";
+            break;
+        default:
+            break;
+        }
         printf("\n\n %sC.%s Try again..\n",yellow,white);
         printf(" %sZ.%s Back to menu..\n",yellow,white);
         printf(" %sQ.%s Exit..\n",yellow,white);
