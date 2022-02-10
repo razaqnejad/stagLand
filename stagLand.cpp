@@ -620,6 +620,7 @@ int strategy(char board[3][3],int level){
     }
     return rand()%9;
 }
+
 void player_turn(char board[3][3],bool& turn, int level,bool& Exit){
     int choice;
     if(turn==Xplayer){
