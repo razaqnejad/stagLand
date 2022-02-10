@@ -949,8 +949,11 @@ void logo(){
     printf("\n");
 }
 void startPage(){
+<<<<<<< HEAD
     system("cls");
     logo();
+=======
+>>>>>>> f66777fb30d15148069dbf50c8ee34ce1708d97b
     for(int i=0 ; i<10 ; i++){
         if(i%3==0){
             printf("\n##############################################\n");
@@ -1001,4 +1004,12 @@ float getfloat_Clear(char ender){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),ender);
     return n;
+<<<<<<< HEAD
 }
+=======
+}
+void cin_Clear(){
+    cin.clear();
+    cin.ignore();
+}
+>>>>>>> f66777fb30d15148069dbf50c8ee34ce1708d97b
