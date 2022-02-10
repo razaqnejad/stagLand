@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <fstream>
 #include <time.h>
+#include <map>
 //#include <string>
 
 //////////////// colors
@@ -71,9 +72,9 @@ double rad2deg(double);
 void setting_Form();
 void Info_Form();
 void tiktoktoe_Form();
-void display_board(char(*)[5],int);
-bool player_turn(char(*)[5],bool,int,bool&);
-int gameover(char(*)[5],int);
+void display_board(char(*)[3],int);
+void player_turn(char(*)[3],bool&,int,bool&);
+int gameover(char(*)[3],int);
 void notepad_Form();
 void login();
 void signup();
@@ -83,6 +84,7 @@ void set_note_data(string);
 void load_note();
 void delete_note();
 void delete_stagland_data();
+int strategy(char(*)[3],int );
 
 int main(){
     char input='\0';
@@ -485,8 +487,8 @@ void notepad_Form(){
 void tiktoktoe_Form(){
     int level;
     char input;
-    char board[5][5];
-    for(int i=0;i<5*5;board[i/5][i%5]=' ',i++);
+    char board[3][3];
+    for(int i=0;i<9;board[i/3][i%3]=' ',i++);
     bool turn = Xplayer;
     do{
         system("cls");
@@ -495,23 +497,22 @@ void tiktoktoe_Form(){
         printf(" %s? choose the game level, then you have to write %s\n",white,white);
         printf(" %s? number of cell to put your character on it%s\n",white,white);
         printf(" ? note that you are %sPlayer X%s\n\n",brightGreen,white);
-        printf(" %s1.%s Level 1 (3*3)\n",brightGreen,white);
-        printf(" %s2.%s Level 2 (4*4)\n",brightGreen,white);
-        printf(" %s3.%s Level 3 (5*5)\n",brightGreen,white);
+        printf(" %s1.%s Level 1 (easy)\n",brightGreen,white);
+        printf(" %s2.%s Level 2 (mid level)\n",brightGreen,white);
+        printf(" %s3.%s Level 3 (hard)\n",brightGreen,white);
         level = getint_Clear();
         while(level<1 || level>3){
             cout << "\nSorry?! try again\n";
             level = getint_Clear();
         }
-        level+=2;
         ////////
-        for(int i=0;i<5*5;board[i/5][i%5]=' ',i++);
+        for(int i=0;i<9;board[i/3][i%3]=' ',i++);
         turn = Xplayer;
         bool Exit=false;
         while(true){
             if(gameover(board,level)!=0 || Exit)   break;
             display_board(board,level);
-            turn = player_turn(board,turn,level,Exit);
+            player_turn(board,turn,level,Exit);
         }
         if(Exit){
             cout<<"\n\nOh :( sad to see you leaving";
@@ -539,100 +540,128 @@ void tiktoktoe_Form(){
     }while(input=='C');
 }
 
-void display_board(char board[5][5],int level){
+void display_board(char board[3][3],int level){
     system("cls");
     printf("\n%s##############################################%s\n\n",brightGreen,bg_black);
     printf(" \t%s! TICK -- TAC -- TOE -- GAME %s\n",white,white);
     printf("%s \tPLAYER [X]\t SYSTEM [O]\n\n %s",brightGreen,white);
-    /*first row border*/
-    cout<<"\t\t";
-    for(int i=0 ; i<level-1 ; i++)
-        printf("%02d   |",i);
-    printf("%02d\n",level-1);
-    /*end border*/
-    for(int i=0 ; i<level-1 ; i++){
-        /*each cell indexes*/
-        cout<<"\t\t  ";
-        for(int j=0 ; j<level-1 ; j++)
-            cout<<board[i][j]<<"  |  ";
-        cout << '\n';
-        /*end indexes*/
-        /*lower borders*/
-        cout<<"\t\t_____";
-        for(int j=0 ; j<level-1 ; j++)
-            cout << "|_____";
-        cout << '\n';
-        /*end middle border*/
-        /*upper borders*/
-        cout<<"\t\t";
-        for(int j=0 ; j<level-1 ; j++)
-            printf("%02d   |",(i+1)*level+j);
-        printf("%02d\n",(i+1)*level+level-1);
-        /*end border*/
-    }
-    /*last row cells indexes*/
-    cout<<"\t\t  ";
-    for(int j=0 ; j<level-1 ; j++)
-        cout<<board[level-1][j]<<"  |  ";
-    cout<<board[level-1][level-1]<< '\n';
-    /*end indexes*/
-    /*last row lower border*/
-    cout<<"\t\t";
-    for(int i=0 ; i<level-1 ; i++)
-        printf("     |");
-    cout << '\n';
-    /*end border*/
+    /*table drawing*/
+    printf( "\t\t0    |1    |2   \n");
+    printf("\t\t  %c  |  %c  |  %c  \n",board[0][0],board[0][1],board[0][2]);
+    printf( "\t\t_____|_____|_____\n");
+    printf( "\t\t3    |4    |5   \n");
+    printf("\t\t  %c  |  %c  |  %c  \n",board[1][0],board[1][1],board[1][2]);
+    printf( "\t\t_____|_____|_____\n");
+    printf( "\t\t6    |7    |8   \n");
+    printf("\t\t  %c  |  %c  |  %c  \n",board[2][0],board[2][1],board[2][2]);
+    printf( "\t\t     |     |     \n");
+    /*end of*/
 }
-
-bool player_turn(char board[5][5],bool turn, int level,bool& Exit){
-    int choice,row,column;
+int strategy(char board[3][3],int level){
+    if(level==1){
+        if(board[1][1]=='X'){
+            if(board[0][0]=='X' || board[0][2]=='X' || board[2][0]=='X' || board[2][2]=='X')
+                return (rand()%9/2)+1;
+            else
+                return rand()%9/2;
+        }
+    }else if(level==2){
+        if(board[1][1]<78)
+            return 4;
+        else if(board[1][1]=='X'){
+            if(board[0][0]=='X' || board[0][2]=='X' || board[2][0]=='X' || board[2][2]=='X')
+                return (rand()%9/2);
+            else
+                return rand()%9/2+1;
+        }
+    }else{
+        if(board[1][1]<78)
+            return 4;
+        else if(board[1][1]=='X'){
+            if(board[0][0]=='X' || board[0][2]=='X' || board[2][0]=='X' || board[2][2]=='X'){
+                if(board[0][1]<78)
+                    return 1;
+                if(board[1][0]<78)
+                    return 3;
+                if(board[2][1]<78)
+                    return 7;
+                if(board[1][2]<78)
+                    return 5;
+            }
+        }else if(board[0][0]=='X'){
+            for(int i=1 ; i<=2 ; i++){
+                if(board[0][i]<78)
+                    return i;
+                else if(board[i][0]<78)
+                    return i*3;
+            }    
+        }else if(board[0][2]=='X'){
+            for(int i=0 ; i<=1 ; i++){
+                if(board[0][i]<78)
+                    return i;
+                else if(board[i+1][2]<78)
+                    return 2*(i+2)+(i+1);
+            }    
+        }else if(board[2][0]=='X'){
+            for(int i=0 ; i<=1 ; i++){
+                if(board[2][i+1]<78)
+                    return i+7;
+                else if(board[i][0]<78)
+                    return i*3;
+            }    
+        }else if(board[2][2]=='X'){
+            for(int i=0 ; i<=1 ; i++){
+                if(board[2][i]<78)
+                    return i+6;
+                else if(board[i][2]<78)
+                    return (i+2)+(i*2);
+            }    
+        }
+    }
+    return rand()%9;
+}
+void player_turn(char board[3][3],bool& turn, int level,bool& Exit){
+    int choice;
     if(turn==Xplayer){
         printf(" %s\n\tIf you wanna end up the game enter -1\n\t Player [X] turn :  %s",brightGreen,white);
         choice = getint_Clear();
-        if (choice==-1){
-            Exit=true;
-            return turn;
-        }
-        while(choice<-1 || choice>=level*level){
+        while(choice<-1 || choice>=9){
             cout<<"\nIf you wanna end up the game enter -1\nInvalid Move\n";
             choice = getint_Clear();
         }
-    }else{
-        printf(" %s\n\tSystem [O] turn :  %s",brightGreen,white);
-        choice= rand()%(level*level);
-    }
-
-    row=choice/level;
-    column=choice%level;
-
-    if(turn == Xplayer && board[row][column] != 'X' && board[row][column] != 'O'){
-        board[row][column] = 'X';
+        if (choice==-1){
+            Exit=true;
+            return;
+        }
+        while(board[choice/3][choice%3]>78){
+            cout<<"Box already filled!n Please choose another!!\n\n";
+            cout<<"\nIf you wanna end up the game enter -1\nInvalid Move\n";
+            choice = getint_Clear();
+        }
+        board[choice/3][choice%3] = 'X';
         turn = Oplayer;
-    }else if(turn == Oplayer && board[row][column] != 'X' && board[row][column] != 'O'){
-        board[row][column] = 'O';
+    }else{
+        do{
+            choice= strategy(board,level);
+        }while(board[choice/3][choice%3]>78);
+        board[choice/3][choice%3] = 'O';
         turn = Xplayer;
-    }else {
-        cout<<"Box already filled!n Please choose another!!\n\n";
-        turn = player_turn(board,turn,level,Exit);
     }
-    return turn;
+    return;
 }
 
-int gameover(char board[5][5], int level){
-    for(int i=0; i<level-2; i++)
-        for(int j=0; j<level; j++)
-            if(board[j][i]!=' ' && board[i][j]!=' ' &&
-            (board[j][i] == board[j][i+1] && board[j][i] == board[j][i+2] || board[i][j] == board[i+1][j] && board[i][j] == board[i+2][j]))
-                return 1;
-
-    for(int i=0; i<level-2; i++)
-        if(board[i][i]!=' ' && board[i][level-(i+1)]!=' ' &&
-        (board[i][i] == board[i+1][i+1] && board[i][i] == board[i+2][i+2] || board[i][level-(i+1)] == board[i+1][level-(i+2)] && board[i][level-(i+1)] == board[i+2][level-(i+3)]))
+int gameover(char board[3][3], int level){
+    for(int i=0 ; i<3 ; i++)
+        if(board[i][0]>78 && board[i][0]==board[i][1] && board[i][0]==board[i][2])
             return 1;
 
-    for(int i=0; i<level; i++)
-        for(int j=0; j<level; j++)
-            if(board[i][j] != 'X' || board[i][j] != 'O')
+    if(board[0][0]>78 && board[0][0]==board[1][1] && board[0][0]==board[2][2]
+    || board[0][2]>78 && board[0][2]==board[1][1] && board[0][2]==board[2][0])
+        return 1;
+
+    for(int i=0; i<9; i++)
+        for(int j=0; j<9; j++)
+            if(board[i][j]<78)
                 return 0;
 
     return -1;
@@ -650,20 +679,17 @@ void Info_Form(){
     printf(" %s  programmer: %s Fatemeh Razaqnejad\n",greenBlue,white);
     printf(" %s  version: %s V0\n",greenBlue,white);
     printf(" %s  contact: %s razaqnejad@gmail.com\n\n",greenBlue,white);
-    do{
-        printf("\n %sC.%s Try again..\n",greenBlue,white);
-        printf(" %sZ.%s Back to menu..\n",greenBlue,white);
-        printf(" %sQ.%s Exit..\n",greenBlue,white);
+    printf(" %sZ.%s Back to menu..\n",greenBlue,white);
+    printf(" %sQ.%s Exit..\n",greenBlue,white);
+    input = getchar_Clear();
+    while(input!='C' && input!='Z' && input!='Q'){
+        cout << "\nSorry?! try again\n";
         input = getchar_Clear();
-        while(input!='C' && input!='Z' && input!='Q'){
-            cout << "\nSorry?! try again\n";
-            input = getchar_Clear();
-        }
-        if (input=='Q')
-            exit(0);
-        if (input=='Z')
-            return;
-    }while(input=='C');
+    }
+    if (input=='Q')
+        exit(0);
+    if (input=='Z')
+        return;
 }
 
 void setting_Form(){
@@ -923,11 +949,11 @@ void logo(){
     printf("\n");
 }
 void startPage(){
-    for(int i=0 ; i<2 ; i++){
+    system("cls");
+    logo();
+    for(int i=0 ; i<10 ; i++){
         if(i%3==0){
-            system("cls");
             printf("\n##############################################\n");
-            logo();
             printf("          $ welcome to stag land $\n");
             printf("            ~~~~~~~~~~~~~~~~~~~\n");
             printf("             please wait.\n");
@@ -935,9 +961,7 @@ void startPage(){
             printf("\n##############################################\n");
             Sleep(1000);
         }else if(i%3==1){
-            system("cls");
             printf("\n##############################################\n");
-            logo();
             printf("          $ welcome to stag land $\n");
             printf("             ~~~~~~~~~~~~~~~~~~~\n");
             printf("             please wait..\n");
@@ -945,9 +969,7 @@ void startPage(){
             printf("\n##############################################\n");
             Sleep(200);
         }else{
-            system("cls");
             printf("\n##############################################\n");
-            logo();
             printf("          $ welcome to stag land $\n");
             printf("              ~~~~~~~~~~~~~~~~~~~\n");
             printf("             please wait...\n");
@@ -955,6 +977,7 @@ void startPage(){
             printf("\n##############################################\n");
             Sleep(200);
         }
+        printf("\033[7A");
     }
 }
 
@@ -978,8 +1001,4 @@ float getfloat_Clear(char ender){
     cin.clear();
     cin.ignore(std::numeric_limits<std::streamsize>::max(),ender);
     return n;
-}
-void cin_Clear(){
-    cin.clear();
-    cin.ignore();
 }
